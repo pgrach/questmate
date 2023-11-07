@@ -2,43 +2,114 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4; /*light background */
+    background-color: #f4f4f4;
 }
 
-#quests-container,
-#new-quest-container {
+.nav {
+    height: 80px;
+    background-color: #323232;
+    color: white;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#logo {
+    float: left;
+    font-family: 'Libre Baskerville', serif;
+    font-size: 30px;
+    margin: 20px;
+}
+.top-buttons-container {
+    float: right;
+    margin-top: 22px;
+    margin-right: 20px;
+    
+}
+
+.top-buttons {
+    color: #323232;
+    height: 35px;
+    border-radius: 10px;
+    box-shadow: 0px 1px 5px 2px rgb(38, 38, 38);
+}
+
+#quest-button {
+    background-color: rgb(251, 165, 5);
+}
+
+#back-button {
+    background-color: rgb(248, 238, 131);
+     
+}
+
+#quest-button:hover {
+    background-color: rgb(253, 136, 93);    
+}
+
+#back-button:hover {
+    background-color: rgb(253, 136, 93);
+}
+
+.quests-container,
+#new-quest {
     display: flex;
     flex-wrap: wrap;
     justify-content: center; /* Centering quest cards */
     padding: 20px;
 }
 
+p {
+    text-align: center;
+}
 .quest-card,
 .quest-card-detail {
     border: 1px solid #ccc;
-    border-radius: 8px;
+    border-radius: 15px;
     padding: 20px;
     margin: 10px;
     background-color: #fff; /* To stand out from the background */
 }
 
+.quest-title {
+    background-color: #323232;
+    color: white;
+    text-align: center;
+    margin-top: 0px;
+    height: 60px;
+    line-height: 60px;
+    border-radius: 10px;
+}
+
+
 /* Adding styles for the form and inputs */
 form {
     max-width: 300px;
-    margin: 20px auto;
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
 }
 
-input[type="text"],
-input[type="date"],
-button {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
+.card-buttons {
+    display: flex;
+    list-style-type: none;
+    text-align: center;
+    justify-content:center;
+}
+.card-button {   
+    background-color: #f0ad4e;
+    margin: 10px;
+    color: #323232;
+    height: 30px;
+    width: 55px;
+    border-radius: 10px;
+    box-shadow: 0.5px 0.5px 3px 1px rgb(217, 216, 216);
+    
+}
+#delete-button {
+    background-color: rgb(251, 58, 58);
+    border: none;
+    
+}
+#delete-button:hover {
+    background-color: rgb(255, 95, 95);
 }
 
 button {
@@ -49,7 +120,7 @@ button {
 }
 
 button:hover {
-    background-color: #4cae4c; /* A shade darker for hover effect */
+    background-color: rgb(253, 136, 93); /* A shade darker for hover effect */
 }
 
 /* Less emphasis for the cancel button */
@@ -68,6 +139,42 @@ a {
 
 a:hover {
     text-decoration: underline;
+}
+
+/* Update file */
+
+#edit-title {
+    background-color: #323232;
+    color: white;
+    text-align: center;
+    margin-top: 0px;
+    height: 60px;
+    line-height: 60px;
+    width: 100%;
+    border-radius: 15px 15px 0px 0px;
+}
+.edit-container {
+    width: 400px;
+    margin: auto;
+    margin-top: 30px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.edit-options {
+    list-style: none;
+}
+
+.edit {
+    margin-bottom: 15px;
+}
+
+#edit-buttons {
+    margin-bottom: 20px;
 }
 
 /* Responsive adjustments */
