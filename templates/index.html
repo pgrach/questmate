@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>Quest Mate</title>
-    <link rel="stylesheet" href="../static/style/style.css">
+    <link rel="stylesheet" href="/static/style/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital@1&display=swap" rel="stylesheet">
 </head>
-
 <body>
     <nav>
         <ul class="nav">
@@ -18,20 +16,16 @@
             </li>
             <li class="top-buttons-container">
                 <a href="{{ url_for('add_quest') }}">
-                    <button class="top-buttons" id="quest-button">New Quest</button>
+                    <button class="top-buttons" id="item-button">New Quest</button>
                 </a>
             </li>
         </ul>  
     </nav>
-    <div class="quests-container">
+    <div class="item-container">
         {% for quest in quests %}
-        <div class="quest-card">
-            <h2 class="quest-title">{{ quest.title }}</h2>
+        <div class="item-card">
+            <h2 class="item-title">{{ quest.title }}</h2>
             <p>Due: {{ quest.due_date }}</p>
-            {% if quest.progress %}
-            <!-- Add a p for description-->
-            <p>Progress: {{ quest.progress }}</p>
-            {% endif %}
             <div class="card-buttons">
                 <a href="{{ url_for('quest', quest_id=quest.id) }}">
                     <button class="card-button">
@@ -47,11 +41,10 @@
                     <input type="submit" value="Delete" class="card-button" id="delete-button">
                 </form>
             </div>
-
         </div>
         {% endfor %}
     </div>
-</body>
+    </body>
 
 <script>
     document.addEventListener("DOMContentLoaded", function(){

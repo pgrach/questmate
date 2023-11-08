@@ -34,7 +34,7 @@ body {
     box-shadow: 0px 1px 5px 2px rgb(38, 38, 38);
 }
 
-#quest-button {
+#item-button {
     background-color: rgb(251, 165, 5);
 }
 
@@ -43,7 +43,7 @@ body {
      
 }
 
-#quest-button:hover {
+#item-button:hover {
     background-color: rgb(253, 136, 93);    
 }
 
@@ -51,7 +51,7 @@ body {
     background-color: rgb(253, 136, 93);
 }
 
-.quests-container,
+.item-container,
 #new-quest {
     display: flex;
     flex-wrap: wrap;
@@ -62,16 +62,20 @@ body {
 p {
     text-align: center;
 }
-.quest-card,
+.item-card,
 .quest-card-detail {
     border: 1px solid #ccc;
     border-radius: 15px;
     padding: 20px;
     margin: 10px;
     background-color: #fff; /* To stand out from the background */
+    /* Add a fixed width or max-width as desired */
+    width: 300px; /* Example fixed width */
+    max-width: 100%; /* Ensures it does not stretch beyond the width of its container */
+    box-sizing: border-box; /* Ensures padding and border are included in the width */
 }
 
-.quest-title {
+.item-title {
     background-color: #323232;
     color: white;
     text-align: center;
@@ -90,19 +94,25 @@ form {
 .card-buttons {
     display: flex;
     list-style-type: none;
-    text-align: center;
-    justify-content:center;
+    justify-content: space-evenly; 
+    align-items: center; 
 }
+
 .card-button {   
     background-color: #f0ad4e;
-    margin: 10px;
+    margin: 10px; /* ensure consistent margins */
     color: #323232;
-    height: 30px;
-    width: 55px;
+    height: 30px; /* consistent height */
+    width: 55px; /* consistent width */
     border-radius: 10px;
     box-shadow: 0.5px 0.5px 3px 1px rgb(217, 216, 216);
-    
+    display: flex; /* to use align-items and justify-content */
+    justify-content: center; /* centers content horizontally */
+    align-items: center; /* centers content vertically */
+    text-align: center; /* centers text if inline */
+    padding: 0; /* adjust padding as necessary */
 }
+
 #delete-button {
     background-color: rgb(251, 58, 58);
     border: none;
@@ -177,15 +187,81 @@ a:hover {
     margin-bottom: 20px;
 }
 
+/* add_form styling: */
+.add-form {
+    max-width: 500px; /* Increased width for better layout */
+    padding: 20px;
+    margin: auto; /* Center the form */
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.add-form .form-group {
+    margin-bottom: 15px;
+}
+
+.add-form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.add-form input[type="text"],
+.add-form input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+.add-form input[type="text"]:focus,
+.add-form input[type="date"]:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.add-form button[type="submit"] {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.add-form button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+.add-form button[type="button"] {
+    background-color: #6c757d;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.add-form button[type="button"]:hover {
+    background-color: #5a6268;
+}
+
+
 /* Responsive adjustments */
 @media (max-width: 600px) {
-    #quests-container {
+    #item-container {
         flex-direction: column;
     }
 
-    .quest-card,
-    .quest-card-detail {
-        width: auto;
+    .item-card,
+    .item-card-detail {
+        width: 100%; /* This makes sure that cards take full width on small screens */
         margin: 10px;
     }
 }

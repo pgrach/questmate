@@ -3,19 +3,18 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 
+
 db = SQLAlchemy()
 
 # Define the Player model
 class Player(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     player_name = db.Column(db.String(80), unique=True, nullable=False)
-    student_cohort = db.Column(db.String(10), nullable=True)
     missions = db.relationship('Mission', backref='player', lazy=True)
     quests = db.relationship('Quest', backref='player', lazy=True)
 
-    def __init__(self, player_name, student_cohort):
+    def __init__(self, player_name):
         self.player_name = player_name
-        self.student_cohort = student_cohort
 
     def __repr__(self):
         return '<Player %r>' % self.player_name
@@ -25,7 +24,7 @@ class Quest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(80), nullable=False)
     due_date = db.Column(db.String(10), nullable=False)
-    player_id = db.Column(db.Integer, db.ForeignKey('player.id'), nullable=False)
+    player_id = db.Column(db.Integer, db.ForeignKey('player.id'), nullable=True)
     missions = db.relationship('Mission', backref='quest', lazy=True)
 
     def __init__(self, title, due_date, player_id):
@@ -70,21 +69,21 @@ def create_app():
 
 app = create_app()
 
+
+# Clicking view brings us here:
+# Read all missions for a quest
 @app.route('/quest/<int:quest_id>')
 def quest(quest_id):
-    quest = Quest.query.filter_by(id=quest_id).first()
-    if quest:
-        return render_template('quest.html', quest=quest)
-    else:
-        return "Quest not found", 404
+    quest = Quest.query.get_or_404(quest_id)
+    missions = Mission.query.filter_by(quest_id=quest_id).all()  # Retrieve all missions related to the quest
+    return render_template('quest.html', quest=quest, missions=missions)
 
 # CRUD operations for Player
 # Create a new player
 @app.route('/player/add', methods=['POST'])
 def add_player():
     player_name = request.form['player_name']
-    student_cohort = request.form['student_cohort']
-    new_player = Player(player_name=player_name, student_cohort=student_cohort)
+    new_player = Player(player_name=player_name)
     db.session.add(new_player)
     db.session.commit()
     return redirect(url_for('index'))
@@ -101,7 +100,6 @@ def update_player(player_id):
     player = Player.query.get_or_404(player_id)
     if request.method == 'POST':
         player.player_name = request.form['player_name']
-        player.student_cohort = request.form['student_cohort']
         db.session.commit()
         return redirect(url_for('list_players'))
     return render_template('update_player.html', player=player)
@@ -117,92 +115,148 @@ def delete_player(player_id):
 # CRUD operations for Quest
 
 # Create a new quest
-@app.route('/quest/add', methods=['POST'])
+@app.route('/quest/add', methods=['GET', 'POST'])
 def add_quest():
-    title = request.form['title']
-    due_date = request.form['due_date']
-    player_id = request.form['player_id']
-    new_quest = Quest(title=title, due_date=due_date, player_id=player_id)
-    db.session.add(new_quest)
-    db.session.commit()
-    return redirect(url_for('index'))
+    if request.method == 'POST':
+        title = request.form['title']
+        due_date = request.form['due_date']
+        player_id = request.form.get('player_id')
+        new_player_name = request.form.get('new_player_name')
 
-# Read all quests
-@app.route('/quests')
-def list_quests():
-    quests = Quest.query.all()
-    return render_template('quests.html', quests=quests)
+        if new_player_name:
+            # Check if player with this name already exists
+            existing_player = Player.query.filter_by(player_name=new_player_name).first()
+            if existing_player:
+                player_id = existing_player.id  # Use existing player's ID
+            else:
+                # Create a new player if a new name is entered
+                new_player = Player(player_name=new_player_name)
+                db.session.add(new_player)
+                db.session.flush()  # Use the new player's ID immediately after adding
+                player_id = new_player.id
+
+        new_quest = Quest(title=title, due_date=due_date, player_id=player_id)
+        db.session.add(new_quest)
+        db.session.commit()
+        return redirect(url_for('index'))
+    else:
+        players = Player.query.all()
+        return render_template('add_quest.html', players=players)
 
 # Update a quest
 @app.route('/quest/update/<int:quest_id>', methods=['GET', 'POST'])
 def update_quest(quest_id):
     quest = Quest.query.get_or_404(quest_id)
     if request.method == 'POST':
+        # Existing player selected
+        player_id = request.form.get('player_id')
+        new_player_name = request.form.get('new_player_name')
+
+        if new_player_name:
+            # Create a new player if a new name is entered
+            new_player = Player(player_name=new_player_name)
+            db.session.add(new_player)
+            db.session.commit()
+            player_id = new_player.id
+
+        # Update the quest
         quest.title = request.form['title']
         quest.due_date = request.form['due_date']
-        quest.player_id = request.form['player_id']
+        quest.player_id = player_id
         db.session.commit()
-        return redirect(url_for('list_quests'))
-    return render_template('update_quest.html', quest=quest)
+        return redirect(url_for('index'))
+
+    # Pass the list of players to the template
+    players = Player.query.all()
+    return render_template('update_quest.html', quest=quest, players=players)
 
 # Delete a quest
 @app.route('/quest/delete/<int:quest_id>', methods=['POST'])
 def delete_quest(quest_id):
+    # Find the quest and its related missions
     quest = Quest.query.get_or_404(quest_id)
+    missions_to_delete = Mission.query.filter_by(quest_id=quest_id).all()
+
+    # Delete missions associated with the quest
+    for mission in missions_to_delete:
+        db.session.delete(mission)
+
+    # Now it's safe to delete the quest
     db.session.delete(quest)
     db.session.commit()
-    return redirect(url_for('list_quests'))
+    return redirect(url_for('index'))
 
 # CRUD operations for Mission
 
 # Create a new mission
-@app.route('/mission/add', methods=['POST'])
-def add_mission():
-    quest_id = request.form['quest_id']
-    title = request.form['title']
-    description = request.form['description']
-    due_date = request.form['due_date']
-    player_id = request.form['player_id']
-    new_mission = Mission(quest_id=quest_id, title=title, description=description, due_date=due_date, player_id=player_id)
-    db.session.add(new_mission)
-    db.session.commit()
-    return redirect(url_for('index'))
+@app.route('/mission/add/<int:quest_id>', methods=['GET', 'POST'])
+def add_mission(quest_id):
+    if request.method == 'POST':
+        title = request.form['title']
+        description = request.form['description']
+        due_date = request.form['due_date']
+        player_id = request.form.get('player_id')
+        new_player_name = request.form.get('new_player_name')
 
-# Read all missions for a quest
-@app.route('/missions/<int:quest_id>')
-def list_missions(quest_id):
-    missions = Mission.query.filter_by(quest_id=quest_id).all()
-    return render_template('missions.html', missions=missions, quest_id=quest_id)
+        if new_player_name:
+            # Check if player with this name already exists
+            existing_player = Player.query.filter_by(player_name=new_player_name).first()
+            if existing_player:
+                player_id = existing_player.id  # Use existing player's ID
+            else:
+                # Create a new player if a new name is entered
+                new_player = Player(player_name=new_player_name)
+                db.session.add(new_player)
+                db.session.flush()  # Use the new player's ID immediately after adding
+                player_id = new_player.id
+
+        new_mission = Mission(quest_id=quest_id, title=title, description=description, due_date=due_date, player_id=player_id)
+        db.session.add(new_mission)
+        db.session.commit()
+        return redirect(url_for('quest', quest_id=quest_id))
+    else:
+        players = Player.query.all()
+        return render_template('add_mission.html', players=players, quest_id=quest_id)
 
 # Update a mission
 @app.route('/mission/update/<int:mission_id>', methods=['GET', 'POST'])
 def update_mission(mission_id):
     mission = Mission.query.get_or_404(mission_id)
     if request.method == 'POST':
+        # Existing player selected
+        player_id = request.form.get('player_id')
+        new_player_name = request.form.get('new_player_name')
+
+        if new_player_name:
+            # Check if player with this name already exists
+            existing_player = Player.query.filter_by(player_name=new_player_name).first()
+            if existing_player:
+                player_id = existing_player.id  # Use existing player's ID
+            else:
+                # Create a new player if a new name is entered
+                new_player = Player(player_name=new_player_name)
+                db.session.add(new_player)
+                db.session.flush()  # Use the new player's ID immediately after adding
+                player_id = new_player.id
+
         mission.title = request.form['title']
         mission.description = request.form['description']
         mission.due_date = request.form['due_date']
-        mission.player_id = request.form['player_id']
+        mission.player_id = player_id
         db.session.commit()
-        return redirect(url_for('list_missions', quest_id=mission.quest_id))
-    return render_template('update_mission.html', mission=mission)
+        return redirect(url_for('quest', quest_id=mission.quest_id))
+    else:
+        players = Player.query.all()
+        return render_template('update_mission.html', mission=mission, players=players)
 
 # Delete a mission
 @app.route('/mission/delete/<int:mission_id>', methods=['POST'])
 def delete_mission(mission_id):
     mission = Mission.query.get_or_404(mission_id)
+    quest_id = mission.quest_id  # Store the quest_id before deleting
     db.session.delete(mission)
     db.session.commit()
-    return redirect(url_for('list_missions', quest_id=mission.quest_id))
-
-# Route to display a specific quest by its ID
-@app.route('/quest/<int:quest_id>')
-def quest(quest_id):
-    quest = Quest.query.filter_by(id=quest_id).first()
-    if quest:
-        return render_template('quest.html', quest=quest)
-    else:
-        return "Quest not found", 404
+    return redirect(url_for('quest', quest_id=quest_id))
 
 # Home route to display all quests, players, and missions
 @app.route('/')
