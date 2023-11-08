@@ -4,28 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Responsive design meta tag -->
     <title>{{ quest.title }} - Quest Detail</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+    <link rel="stylesheet" href="../static/style/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital@1&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="quest-card-detail">
-        <h1>{{ quest.title }}</h1> <!-- Consider using h1 for the main title -->
+    <nav>
+        <ul class="nav">
+            <li id="logo">
+                Quest Mate
+            </li>
+            <li class="top-buttons-container">
+                <a href="{{ url_for('add_quest') }}">
+                    <button class="top-buttons" id="quest-button">New Mission</button>
+                </a>
+            </li>
+            <li class="top-buttons-container">
+                <button class="top-buttons" id="back-button" onclick="window.history.back()">Go Back</button>
+            </li>
+        </ul>  
+    </nav>
+    <div class="quests-container">
+        <div class="quest-card">
+            <h2 class="quest-title">{{ quest.title }}</h2> 
         {% if quest.player %}
             <p>Player: {{ quest.player }}</p>
         {% endif %}
         <p>Due: {{ quest.due_date }}</p>
-        {% if quest.progress %}
-            <p>Progress: {{ quest.progress }}</p>
         {% endif %}
-        <!-- Edit and Delete options if needed -->
-        <a href="{{ url_for('update_quest', quest_id=quest.id) }}">Edit Quest</a>
 
         <!-- To include CSRF token in the form for security -->
         
-        <form action="{{ url_for('delete_quest', quest_id=quest.id) }}" method="post">
-            <!-- CSRF hidden field here -->
-            <input type="submit" value="Delete Quest">
-        </form>
-        <button onclick="window.history.back()">Go Back</button>
+        <div class="card-buttons">           
+            <a href="{{ url_for('update_quest', quest_id=quest.id) }}">
+                <button class="card-button">
+                    Edit
+                </button>
+            </a>
+            <!-- This should be change to delete mission -->
+            <form action="{{ url_for('delete_quest', quest_id=quest.id) }}" method="post" class="delete-form">
+                <input type="submit" value="Delete" class="card-button" id="delete-button"> 
+            </form>
+        </div>
+        </div>
+        
     </div>
 </body>
 </html>
